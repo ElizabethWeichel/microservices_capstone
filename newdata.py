@@ -1,6 +1,9 @@
 import os
 import subprocess as sub
 import json
+######################################################################################################################
+# Trial and error code to use the curl command to retrieve data from jaeger rather than the json outputter python code
+######################################################################################################################
 
 command = ['/home/ugrads/l/lweichel13/Work/repos/repos/socialNetwork/wrk2/wrk -D exp -t 1 -c 1 -d 10 -L -s /home/ugrads/l/lweichel13/Work/repos/repos/socialNetwork/wrk2/scripts/social-network/compose-post.lua http://localhost:8080/wrk2-api/post/compose -R 100','/home/ugrads/l/lweichel13/Work/repos/repos/socialNetwork/wrk2/wrk -D exp -t 2 -c 2 -d 100 -L -s /home/ugrads/l/lweichel13/Work/repos/repos/socialNetwork/wrk2/scripts/social-network/compose-post.lua http://localhost:8080/wrk2-api/post/compose -R 1000']
 #def linux_command1(cmdb):
