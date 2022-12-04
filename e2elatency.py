@@ -15,6 +15,8 @@ df = pd.DataFrame()
 df['Names']=names
 print(df)
 
+os.popen('dzdo docker update --cpus=0.1 socialnetwork_nginx-thrift_1')
+cpuvalues=pd.read_csv('cpuvals.csv', usecols=['Name'])
 #currentallocation = os.popen('dzdo docker stats --no-stream --format "{{.Name}}: {{.CPUPerc}}"').readlines()
 #currallvals = []
 
@@ -49,7 +51,6 @@ def wrkld(cmd):
 for i in range(0, 2):
 #    print(i)
 #latency = sub.run(command[0],shell=True).readlines()
-    latency=os.popen(command[i]).readlines()
 #l2=latency
     #if __name__=='__main__':
          #t1=threading.Thread(target=cpuall)
@@ -69,30 +70,66 @@ for i in range(0, 2):
     #sub.run(command[i][0],shell=True)
     #t1.join()
     #t2.join()
-    print(latency[4])
+    
+    #performing workload generation command in terminal.
+    #.readlines() will read the output of the workload generation command into the variable "latency"
+    latency=os.popen(command[i]).readlines()
+    #from trial, latency[4] is the array value that corresponds to the row of the terminal output with the end-to-end latency string in it
     x=latency[4].split()
-    print(x)
+    
+    #index 0 of the row containing the e2e latency string is the index with the actual e2e value
     e2e=x[1]
-    #e2e=e2e.split('u')
-    #e2e=e2e.split('m')
+    
+    #there are different units used. We must get all of the units the same in order to compare
     if 'u' in e2e:
         e2e=e2e.split('u')
         mean.append(float(e2e[0]))
     elif 'm' in e2e:
         e2e=e2e.split('m')
         mean.append(float(e2e[0])*1000)
-    #mean.append(e2e[0])
-    cpuvalues=pd.read_csv('cpuvals.csv')
-    print(cpuvalues)
+    elif 's' in e2e:
+        e2e=e2e.split('s')
+        mean.append(float(e2e[0])*1000000)
+    
+    #this line of code is reading in the CPU usage for the different containers. 
+    #cpuvals.csv is created by cpudata.py
+    cpuvalues2=pd.read_csv('cpuvals.csv', usecols=['CPU%'])
+    cpuvalues[i+1]=cpuvalues2
+    
+    
+    
+    
+    
+    
+    
+    
+    
 #print(e2e[0])
 #print(opname)
 print(mean)
 
 if(mean[1]>=mean[0]):
     print("More CPU needs to be allocated. The mean end to end latency is higher with more requests per second.")
+    os.popen('dzdo docker update --cpus=0.5 socialnetwork_nginx-thrift_1')
+    #os.popen('dzdo docker update --cpu-shares= socialnetwork_nginx-thrift_1')
+    latency=os.popen(command[1]).readlines()
+    x=latency[4].split()
+    e2e=x[1]
+    if 'u' in e2e:
+        e2e=e2e.split('u')
+        mean.append(float(e2e[0]))
+    elif 'm' in e2e:
+        e2e=e2e.split('m')
+        mean.append(float(e2e[0])*1000)
+    #mean.append(mean[-1])
+    cpuvalues2=pd.read_csv('cpuvals.csv',usecols=['CPU%'])
+    cpuvalues['Updated']=cpuvalues2
+    #os.popen('dzdo docker container restart socialnetwork_nginx-thrift_1')
+
 else:
     print("With higher workload request, the mean latency is less than or equal. Therefore, more CPU does not need to be allocated.")
-#df=pd.read_csv(pd.compat.StringIO(latency[4]))
+    print(cpuvalues)
+    #df=pd.read_csv(pd.compat.StringIO(latency[4]))
 #for i in range(0, len(latency)):
 #df=pd.DataFrame(latency)
 #print(df.loc[[4]])
@@ -104,6 +141,7 @@ else:
 #latvals=df.loc[4]
 #latvals.values.tolist()
 #print(latvals[0])
-
+print(mean)
+print(cpuvalues)
 
 
