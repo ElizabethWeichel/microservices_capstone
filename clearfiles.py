@@ -1,4 +1,6 @@
 import os
+#the json outputter code creates four folders with many .jsons in each.
+#this code clears all of the files in the four folders in preparation for a new workload to output .jsons.
 
 directory = '/home/ugrads/l/lweichel13/Work/repos/pythontrial/user-service'
 for filename in os.scandir(directory):
